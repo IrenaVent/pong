@@ -1,3 +1,5 @@
+#es solo un ejemplo 
+
 import pygame as pg #le ponemos un alias, para no escribir tanto
 
 pg.init()
