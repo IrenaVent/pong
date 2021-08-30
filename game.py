@@ -1,17 +1,84 @@
 import pygame as pg
+from random import randrange
 
 SIZE = (800,600) # we decided no parmetric screen
 
-class Bola():
+
+class Movil(): #la clase padre, IMPORTANTE de ellas heredan el resto
+    
     def __init__(self, x, y, w, h, color=(255,255,255)):
         self.x = x
         self.y = y
         self.w = w
         self.h = h
         self.color = color
+
+    #------> REVISAR -------
+    # @property
+    # def izquierda(self):
+    #     return self.x
+
+    # @izquierda.setter
+    # def izquierda(self,valor):
+    #     return self.x = valor
+
+    # @property
+    # def derecha(self):
+    #     return self.x + self.w
+    
+    # @derecha.setter
+    # def derecha (self, valor):
+    #     self.x = valor - self.w
+
+    # @property
+    # def arriba(self):
+    #     return self.y
+
+    # @property
+    # def abajo(self):
+    #     return self.x + self.h
+
+    @abajo.setter
+    def abajo(self, valor):
+        self.y = valor - self.h
+
+    def actualizate(self):
+        pass
+
+    def procesa_eventos(self, lista_eventos=[]):
+        pass
+
+    def dibujate(self, lienzo):
+        pg.draw.rect(lienzo, self.color, pg.Rect(self.x, self.y, self.w, self.h))
+
+
+class Raqueta(Movil):
+    def __init__(self, x, y, color=(255,255,255)):
+        Movil.__init__(self, x, y, 20, 120, color) #esto es lo mismo que ...otra manera de escribirlo
+        self.tecla_arriba = pg.K_UP
+        self.tecla_abajo = pg.K_DOWN
+
+    def procesa_eventos(self, lista_eventos=[]):
+        if pg.key.get_pressed()[self.tecla_arriba]:
+            self.y -= 5
         
-        self.derecha = True
-        self.arriba = True
+        if self.arriba <= 0:
+            self.y = 0
+
+        if pg.key.get_pressed()[self.tecla_abajo]:
+            self.y += 5
+        
+        if self.abajo >= SIZE[1]:
+            self.abajo = SIZE[1]
+        
+
+
+class Bola(Movil):
+    def __init__(self, x, y, color=(255,255,255)):
+        super().__init__(x, y, 20, 20, color) #esto es lo mismo que ... otra manera de escribirlo
+        
+        self.swDerecha = True
+        self.swArriba = True
 
         # self.incremento_x = 5
         # self.incremento_y = 5
@@ -19,28 +86,28 @@ class Bola():
     def actualizate(self):
 
         # movement X (left - right)
-        if self.derecha:
+        if self.swDerecha:
             self.x += 5
         else:
             self.x -= 5
 
         if self.x + self.w >= SIZE [0]:
-            self.derecha = False 
+            self.swDerecha = False 
         
         if self.x <= 0:
-            self.derecha = True
+            self.swDerecha = True
         
         # movemnent Y (up - down)
-        if self.arriba:
+        if self.swArriba:
             self.y -= 5
         else:
             self.y += 5
 
         if self.y + self.h >= SIZE [1]:
-            self.arriba = True
+            self.swArriba = True
         
         if self.y <= 0:
-            self.arriba = False
+            self.swArriba = False
 
         # solución MON
         # self.x += self.incremento_x
@@ -57,25 +124,42 @@ class Game(): # el bucle principal lo convertimos en una clase
     def __init__(self):
         self.pantalla = pg.display.set_mode((SIZE))
         self.reloj = pg.time.Clock()
+        self.todos = []
+
+        self.player1 = Raqueta (10, (SIZE[1]-120) //2)
+        self.player1.tecla_arriba = pg.K_w
+        self.player1.tecla_abajo = pg.K_s
+        self.player2 = Raqueta (SIZE[0]-30, (SIZE[1]-120) //2)
+
+        self.todos.append(self.player1)
+        self.todos.append(self.player2)
+
+        self.bola = Bola(SIZE[0] // 2 - 10, SIZE[1] // 2 - 10, (255, 255, 0))
+
+        self.todos.append(self.bola)
+
 
     def bucleppal(self):
 
-        bola = Bola (SIZE[0]//2-10, SIZE[1]//2-10, 20, 20)
         game_over = False   
         pg.init()
 
         while not game_over:
-            self.reloj.tick(60)
+            self.reloj.tick(60)                 
 
             eventos = pg.event.get()
             for evento in eventos:
                 if evento.type == pg.QUIT:
                     game_over = True
 
+            for movil in self.todos:
+                movil.procesa_eventos()
+                movil.actualizate()
+            
             self.pantalla.fill((0, 0, 0))
-            pg.draw.rect(self.pantalla, bola.color, pg.Rect(bola.x, bola.y, bola.w, bola.h))
-
-            bola.actualizate()
+           
+            for movil in self.todos:
+                movil.dibujate(self.pantalla)
 
             pg.display.flip() 
 
