@@ -13,30 +13,33 @@ class Movil(): #la clase padre, IMPORTANTE de ellas heredan el resto
         self.h = h
         self.color = color
 
-    #------> REVISAR -------
-    # @property
-    # def izquierda(self):
-    #     return self.x
+    @property
+    def izquierda(self):
+        return self.x
 
-    # @izquierda.setter
-    # def izquierda(self,valor):
-    #     return self.x = valor
+    @izquierda.setter
+    def izquierda(self,valor):
+        self.x = valor
 
-    # @property
-    # def derecha(self):
-    #     return self.x + self.w
+    @property
+    def derecha(self):
+        return self.x + self.w
     
-    # @derecha.setter
-    # def derecha (self, valor):
-    #     self.x = valor - self.w
+    @derecha.setter
+    def derecha (self, valor):
+        self.x = valor - self.w
 
-    # @property
-    # def arriba(self):
-    #     return self.y
+    @property
+    def arriba(self):
+        return self.y
 
-    # @property
-    # def abajo(self):
-    #     return self.x + self.h
+    @arriba.setter
+    def arriba(self, valor):
+        self.y = valor
+
+    @property
+    def abajo(self):
+        return self.y + self.h
 
     @abajo.setter
     def abajo(self, valor):
@@ -55,15 +58,15 @@ class Movil(): #la clase padre, IMPORTANTE de ellas heredan el resto
 class Raqueta(Movil):
     def __init__(self, x, y, color=(255,255,255)):
         Movil.__init__(self, x, y, 20, 120, color) #esto es lo mismo que ...otra manera de escribirlo
-        self.tecla_arriba = pg.K_UP
-        self.tecla_abajo = pg.K_DOWN
+        self.tecla_arriba = pg.K_UP   # tecla_arriba será K_UP por defecto 
+        self.tecla_abajo = pg.K_DOWN  # tecla_abajo será K_DOWN por defecto 
 
     def procesa_eventos(self, lista_eventos=[]):
         if pg.key.get_pressed()[self.tecla_arriba]:
             self.y -= 5
         
         if self.arriba <= 0:
-            self.y = 0
+            self.arriba = 0
 
         if pg.key.get_pressed()[self.tecla_abajo]:
             self.y += 5
@@ -71,7 +74,6 @@ class Raqueta(Movil):
         if self.abajo >= SIZE[1]:
             self.abajo = SIZE[1]
         
-
 
 class Bola(Movil):
     def __init__(self, x, y, color=(255,255,255)):
@@ -91,10 +93,10 @@ class Bola(Movil):
         else:
             self.x -= 5
 
-        if self.x + self.w >= SIZE [0]:
+        if self.derecha >= SIZE [0]: # if self.x + self.w >= SIZE [1]
             self.swDerecha = False 
         
-        if self.x <= 0:
+        if self.izquierda <= 0:
             self.swDerecha = True
         
         # movemnent Y (up - down)
@@ -103,10 +105,10 @@ class Bola(Movil):
         else:
             self.y += 5
 
-        if self.y + self.h >= SIZE [1]:
+        if self.abajo >= SIZE [1]: # if self.y + self.h >= SIZE [1]
             self.swArriba = True
         
-        if self.y <= 0:
+        if self.arriba <= 0:
             self.swArriba = False
 
         # solución MON
@@ -119,7 +121,6 @@ class Bola(Movil):
         # if self.y + self.h > SIZE [1] or self.y < 0:
         #     self.incremento_y *= -1
 
-
 class Game(): # el bucle principal lo convertimos en una clase 
     def __init__(self):
         self.pantalla = pg.display.set_mode((SIZE))
@@ -127,17 +128,17 @@ class Game(): # el bucle principal lo convertimos en una clase
         self.todos = []
 
         self.player1 = Raqueta (10, (SIZE[1]-120) //2)
-        self.player1.tecla_arriba = pg.K_w
-        self.player1.tecla_abajo = pg.K_s
+        self.player1.tecla_arriba = pg.K_w #sólo para player1, player dos utiliza K_UP/DOWN - y es en la calse donde se le asigna el valor K_UP
+        self.player1.tecla_abajo = pg.K_s #sólo para player1, player dos utiliza K_UP/DOWN - y es en la calse donde se le asigna el valor K_DOWN
+        
         self.player2 = Raqueta (SIZE[0]-30, (SIZE[1]-120) //2)
-
+        
         self.todos.append(self.player1)
         self.todos.append(self.player2)
 
         self.bola = Bola(SIZE[0] // 2 - 10, SIZE[1] // 2 - 10, (255, 255, 0))
 
         self.todos.append(self.bola)
-
 
     def bucleppal(self):
 
