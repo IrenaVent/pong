@@ -121,6 +121,11 @@ class Bola(Movil):
         # if self.y + self.h > SIZE [1] or self.y < 0:
         #     self.incremento_y *= -1
 
+    def comprobar_choque(self, algo):
+        return self.derecha >= algo.izquierda and self.izquierda <= algo.derecha and \
+            self.abajo >= algo.arriba and self.arriba <= algo.abajo
+
+
 class Game(): # el bucle principal lo convertimos en una clase 
     def __init__(self):
         self.pantalla = pg.display.set_mode((SIZE))
@@ -155,6 +160,11 @@ class Game(): # el bucle principal lo convertimos en una clase
 
             for movil in self.todos:
                 movil.procesa_eventos()
+
+            if self.bola.comprobar_choque(self.player1) or self.bola.comprobar_choque(self.player2):
+                self.bola.swDerecha = not self.bola.swDerecha
+                
+            for movil in self.todos:
                 movil.actualizate()
             
             self.pantalla.fill((0, 0, 0))
